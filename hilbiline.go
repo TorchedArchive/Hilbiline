@@ -45,6 +45,7 @@ func (h *HilbilineState) Read() (string, error) {
 	defer term.Restore(int(os.Stdin.Fd()), oldState)
 
 	h.buf = []rune{}
+	h.pos = 0
 
 	fmt.Print(h.prompt)
 	for {
