@@ -73,6 +73,11 @@ func (h *HilbilineState) Read() (string, error) {
 	return "", nil
 }
 
+// Sets the prompt
+func (h *HilbilineState) SetPrompt(prompt string) {
+	h.prompt = prompt
+}
+
 // backspace our text
 // basically how it works is we move the cursor back, print
 // empty space then go back again
