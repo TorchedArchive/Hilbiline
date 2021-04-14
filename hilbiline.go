@@ -56,7 +56,7 @@ func (h *HilbilineState) Read() (string, error) {
 			// return eof on ctrl d
 			return "", io.EOF
 		case KeyEnter:
-			// return entered text
+			fmt.Print("\n\r")
 			return string(h.buf), nil
 		case KeyBackspace:
 			h.backspace()
