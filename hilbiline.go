@@ -80,10 +80,9 @@ func (h *HilbilineState) Read() (string, error) {
 // ie japanese characters
 func (h *HilbilineState) backspace() {
 	if h.pos > 0 {
-		leng := runewidth.RuneWidth(h.buf[h.pos - 1])
 		h.buf = append(h.buf[:h.pos - 1], h.buf[h.pos:]...)
 		h.pos--
-		fmt.Printf("\u001b[%dD \u001b[%dD", leng, leng)
+		fmt.Printf("\u001b[1D \u001b[1D")
 	}
 }
 
