@@ -9,7 +9,7 @@ import (
 	"fmt"
 
 	"golang.org/x/term"
-	"github.com/mattn/go-runewidth"
+	_ "github.com/mattn/go-runewidth" // we'll need later
 )
 
 const (
