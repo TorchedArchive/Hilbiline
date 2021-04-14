@@ -38,6 +38,8 @@ func New(prompt string) HilbilineState {
 }
 
 func (h *HilbilineState) Read() (string, error) {
+	fmt.Print(h.prompt)
+
 	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
 	if err != nil {
 		return "", err
@@ -47,7 +49,6 @@ func (h *HilbilineState) Read() (string, error) {
 	h.buf = []rune{}
 	h.pos = 0
 
-	fmt.Print(h.prompt)
 	for {
 		char, _, err := h.r.ReadRune()
 		if err != nil { return "", err }
