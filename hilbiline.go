@@ -56,7 +56,7 @@ type HilbilineState struct {
 	// Num of rows in mlmode
 	maxrows int
 
-	r *bufio.Reader
+	histState histState
 }
 
 func NewHilbilineState(prompt string) HilbilineState {
@@ -67,9 +67,19 @@ func NewHilbilineState(prompt string) HilbilineState {
 		buf:    []rune{},
 		prompt: prompt,
 
-		rlstate: 0,
-		done:    0,
-
-		r: bufio.NewReader(os.Stdin),
+		// By default, does not have a file to write to. AddHistFile must be used for
+		// persistent history
+		histState: newHistState(),
 	}
+}
+
+func (h HilbilineState) AddHistFile(path string) {
+	// Open file with R/W perms or create it, perms are RWE for user only
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0700)
+	if err != nil {
+		panic(err)
+	}
+
+	h.histState.file = file
+
 }
