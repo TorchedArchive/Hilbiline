@@ -81,4 +81,5 @@ func (h HilbilineState) AddHistFile(path string) error {
 	}
 
 	h.histState.file = file
+	return nil
 }
