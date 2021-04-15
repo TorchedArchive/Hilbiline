@@ -158,8 +158,8 @@ func (h HilbilineState) editInsert(c rune) {
 }
 
 func (h HilbilineState) editBackspace() {
-	h.pos--
 	h.buf[h.pos] = KeyNull
+	h.pos--
 	h.refreshLine()
 }
 
