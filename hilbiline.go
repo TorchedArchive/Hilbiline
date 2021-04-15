@@ -67,14 +67,15 @@ func New(prompt string) HilbilineState {
 		buf:    []rune{},
 		prompt: prompt,
 
-		// By default, does not have a file to write to. AddHistFile must be used for
-		// persistent history
+		// By default, does not have a file to write to.
+		// AddHistFile must be used for persistent history
 		histState: newHistState(),
 	}
 }
 
 func (h HilbilineState) AddHistFile(path string) error {
-	// Open file with R/W perms or create it, perms are RWE for user only
+	// Open file with R/W perms or create it,
+	// perms are RWE for user only
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0700)
 	if err != nil {
 		return err
