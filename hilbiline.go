@@ -124,7 +124,7 @@ func (h *HilbilineState) Read() (string, error) {
 
 }
 
-func (h HilbilineState) AddHistFile(path string) error {
+func (h HilbilineState) LoadHistory(path string) error {
 	// Open file with R/W perms or create it,
 	// perms are RWE for user only
 	file, err := os.OpenFile(path, os.O_RDWR | os.O_CREATE, 0700)
