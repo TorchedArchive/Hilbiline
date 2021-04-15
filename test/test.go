@@ -7,7 +7,7 @@ import (
 
 func main() {
 	homedir, _ := os.UserHomeDir()
-	defaultconfpath := homedir + "/.hilbish-history"
+	defaultconfpath := homedir + "/.hilbiline-history"
 	hl := hilbiline.New("& ")
 	hl.AddHistFile(defaultconfpath)
 	// for {
