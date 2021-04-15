@@ -4,8 +4,8 @@ import (
 	"os"
 )
 
-const (
-	hist_max_len = 1000
+var (
+	HistoryMaxLen = 1000
 )
 
 type histState struct {
