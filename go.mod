@@ -1,4 +1,4 @@
-module github.com/Hilbis/Hilbiline
+module hilbiline
 
 go 1.16
 
