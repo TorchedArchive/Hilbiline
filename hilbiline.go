@@ -33,8 +33,8 @@ const (
 )
 
 var (
-	maskedmode = 0
-	mlmode     = 0
+	maskedmode = false
+	mlmode     = false
 )
 
 type HilbilineState struct {
@@ -64,7 +64,8 @@ func New(prompt string) HilbilineState {
 		stdio:  bufio.NewReader(os.Stdin),
 		stdout: bufio.NewReader(os.Stdout),
 
-		buf:    []rune{},
+		// Preallocate to avoid reallocation later
+		buf:    make([]rune, 80),
 		prompt: prompt,
 
 		// By default, does not have a file to write to.
@@ -83,4 +84,36 @@ func (h HilbilineState) AddHistFile(path string) error {
 
 	h.histState.file = file
 	return nil
+}
+
+func (h HilbilineState) PrintPrompt() {
+	fmt.Print(h.prompt)
+}
+
+func (h HilbilineState) ClearScreen() {
+	fmt.Print("\x1b[H\x1b[2J")
+	h.PrintPrompt()
+}
+
+func (h HilbilineState) editInsert(c rune) {
+	h.buf[h.pos] = c
+	h.pos++
+	h.buf[h.pos] = KeyNull
+
+	if !mlmode {
+		fmt.Print(string(c))
+	} else {
+		fmt.Print("*")
+	}
+}
+
+func (h HilbilineState) editBackspace() {
+	h.pos--
+	h.buf[h.pos] = KeyNull
+	h.refreshLine()
+}
+
+func (h *HilbilineState) refreshLine() (*term.State, error) {
+	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
+	return oldState, err
 }
