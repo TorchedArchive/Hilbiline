@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"hilbiline"
+	"io"
 	"os"
 )
 
@@ -10,17 +12,17 @@ func main() {
 	defaultconfpath := homedir + "/.hilbiline-history"
 	hl := hilbiline.New("& ")
 	hl.AddHistFile(defaultconfpath)
-	// for {
-	// str, e := hl.Read()
-	// if e == io.EOF {
-	// fmt.Println("hit ctrl d")
-	// return
-	// }
-	//
-	// if e != nil {
-	// panic(e)
-	// }
-	//
-	// fmt.Println(str)
-	// }
+	for {
+		str, e := hl.Read()
+		if e == io.EOF {
+			fmt.Println("hit ctrl d")
+			return
+		}
+		//
+		if e != nil {
+			panic(e)
+		}
+		//
+		fmt.Println(str)
+	}
 }

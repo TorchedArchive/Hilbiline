@@ -4,9 +4,12 @@ package hilbiline
 
 import (
 	"bufio"
+	"fmt"
+	"io"
 	"os"
 
 	_ "github.com/mattn/go-runewidth" // we'll need later
+	"golang.org/x/term"
 )
 
 const (
@@ -116,4 +119,47 @@ func (h HilbilineState) editBackspace() {
 func (h *HilbilineState) refreshLine() (*term.State, error) {
 	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
 	return oldState, err
+}
+
+func (h *HilbilineState) Read() (string, error) {
+	fmt.Print(h.prompt)
+
+	oldState, _ := h.refreshLine()
+	defer term.Restore(int(os.Stdin.Fd()), oldState)
+
+	h.buf = make([]rune, 80)
+	h.pos = KeyNull
+
+	for {
+		char, _, err := h.stdio.ReadRune()
+		if err != nil {
+			return "", err
+		}
+
+		switch char {
+		// Apparently CtrlT, CtrlB, CtrlF all do stuff but like no one cares about it
+		case KeyCtrlD:
+			// End session on CtrlD
+			return "", io.EOF
+		case KeyCtrlL:
+			h.ClearScreen()
+		case KeyCtrlU:
+			// Delete whole line
+			h.buf[0] = KeyNull
+			h.pos = 0
+			h.refreshLine()
+		// case KeyCtrlN: go forward in history
+		// case KeyCtrlP: go back in history
+		// case KeyEsc: do something?
+		case KeyEnter:
+			fmt.Print("\n\r")
+			return string(h.buf), nil
+		case KeyBackspace:
+			h.editBackspace()
+		default:
+			h.pos++
+			h.editInsert(char)
+		}
+	}
+
 }
