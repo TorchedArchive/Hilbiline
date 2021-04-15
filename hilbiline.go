@@ -141,6 +141,8 @@ func (h *HilbilineState) Read() (string, error) {
 		case KeyCtrlD:
 			// End session on CtrlD
 			return "", io.EOF
+		case KeyCtrlC:
+			return "", nil
 		case KeyCtrlL:
 			h.ClearScreen()
 		case KeyCtrlU:
