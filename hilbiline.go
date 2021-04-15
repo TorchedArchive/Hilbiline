@@ -59,7 +59,7 @@ type HilbilineState struct {
 	histState histState
 }
 
-func NewHilbilineState(prompt string) HilbilineState {
+func New(prompt string) HilbilineState {
 	return HilbilineState{
 		stdio:  bufio.NewReader(os.Stdin),
 		stdout: bufio.NewReader(os.Stdout),
