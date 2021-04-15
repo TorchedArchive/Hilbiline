@@ -22,6 +22,7 @@ func newHistState() histState {
 }
 
 type histBuf struct {
+	// Maybe have map[string]int?
 	entries []string
 	length  int
 }
@@ -36,4 +37,9 @@ func newHistBuf() histBuf {
 // TODO
 func (h histBuf) readFromFile(f *os.File) {}
 
-func (h histBuf) writeToFile(f *os.File) {}
+func (h histBuf) writeToFile(f *os.File) {
+	for _, v := range h.entries {
+		f.WriteString(v)
+		f.WriteString("\n")
+	}
+}
