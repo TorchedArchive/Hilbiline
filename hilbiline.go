@@ -73,13 +73,12 @@ func New(prompt string) HilbilineState {
 	}
 }
 
-func (h HilbilineState) AddHistFile(path string) {
+func (h HilbilineState) AddHistFile(path string) error {
 	// Open file with R/W perms or create it, perms are RWE for user only
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0700)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	h.histState.file = file
-
 }
