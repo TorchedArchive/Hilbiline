@@ -3,93 +3,174 @@
 package hilbiline
 
 import (
-	"io"
 	"bufio"
-	"os"
 	"fmt"
+	"io"
+	"os"
 
-	"golang.org/x/term"
 	_ "github.com/mattn/go-runewidth" // we'll need later
+	"golang.org/x/term"
 )
 
 const (
-	KeyNull = 0
-	KeyCtrlD = 4
-	KeyTab = 9
-	KeyEnter = 13
-	KeyEsc = 27
+	// Keycodes
+	KeyNull      = 0
+	KeyCtrlA     = 1
+	KeyCtrlB     = 2
+	KeyCtrlC     = 3
+	KeyCtrlD     = 4
+	KeyCtrlE     = 5
+	KeyCtrlF     = 6
+	KeyCtrlH     = 8
+	KeyTab       = 9
+	KeyCtrlJ     = 10
+	KeyCtrlK     = 11
+	KeyCtrlL     = 12
+	KeyEnter     = 13
+	KeyCtrlN     = 14
+	KeyCtrlP     = 16
+	KeyCtrlT     = 20
+	KeyCtrlU     = 21
+	KeyCtrlW     = 23
+	KeyEsc       = 27
 	KeyBackspace = 127
 )
 
+var (
+	maskedmode = false
+	mlmode     = false
+)
+
 type HilbilineState struct {
-	buf []rune
-	r *bufio.Reader
+	// io readers
+	stdio  *bufio.Reader
+	stdout *bufio.Reader
+
+	// Readline buffer and prompt
+	buf    []rune
 	prompt string
-	pos int
+
+	historyindex int
+
+	pos    int // Current cursor position
+	oldpos int // Previous cursor position
+	cols   int // Num of terminal columns
+
+	// Don't know if needed
+	// Num of rows in mlmode
+	maxrows int
+
+	histState histState
 }
 
 func New(prompt string) HilbilineState {
 	return HilbilineState{
-		buf: []rune{},
-		r: bufio.NewReader(os.Stdin),
-		pos: 0,
+		stdio:  bufio.NewReader(os.Stdin),
+		stdout: bufio.NewReader(os.Stdout),
+
+		buf:    []rune{},
 		prompt: prompt,
+
+		// By default, does not have a file to write to.
+		// AddHistFile must be used for persistent history
+		histState: newHistState(),
 	}
 }
 
 func (h *HilbilineState) Read() (string, error) {
 	fmt.Print(h.prompt)
 
-	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
-	if err != nil {
-		return "", err
-	}
+	oldState, _ := h.refreshLine()
 	defer term.Restore(int(os.Stdin.Fd()), oldState)
 
 	h.buf = []rune{}
 	h.pos = 0
 
 	for {
-		char, _, err := h.r.ReadRune()
-		if err != nil { return "", err }
+		// TODO: custom read so we can handle esc properly
+		char, _, err := h.stdio.ReadRune()
+		if err != nil {
+			return "", err
+		}
 
 		switch char {
+		// Apparently CtrlT, CtrlB, CtrlF all do stuff
+		// but like no one cares about it
 		case KeyCtrlD:
-			// return eof on ctrl d
+			// End session on CtrlD
 			return "", io.EOF
+		case KeyCtrlC:
+			return "", nil
+		// Vertical feed
+		case KeyCtrlJ:
+			return "", nil
+		case KeyCtrlL:
+			h.ClearScreen()
+		case KeyCtrlU:
+			// Delete whole line
+			h.buf = []rune{}
+			h.pos = 0
+
+			h.refreshLine()
+		// case KeyCtrlN: go forward in history
+		// case KeyCtrlP: go back in history
+		// case KeyEsc: handle esc codes (cursor up etc)
 		case KeyEnter:
 			fmt.Print("\n\r")
 			return string(h.buf), nil
 		case KeyBackspace:
-			h.backspace()
+			h.editBackspace()
 		default:
-			// at default we assume is a printable char
-			// so move the cursor (pos) and print the char
-			h.pos++
-			fmt.Print(string(char))
-			h.buf = append(h.buf, char)
+			h.editInsert(char)
 		}
 	}
 
-	// go complains if i dont have this
-	return "", nil
 }
 
-// Sets the prompt
-func (h *HilbilineState) SetPrompt(prompt string) {
-	h.prompt = prompt
+func (h HilbilineState) LoadHistory(path string) error {
+	// Open file with R/W perms or create it,
+	// perms are RWE for user only
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0700)
+	if err != nil {
+		return err
+	}
+
+	h.histState.file = file
+	return nil
 }
 
-// backspace our text
-// basically how it works is we move the cursor back, print
-// empty space then go back again
-// this doesnt work with characters with a length > 1
-// ie japanese characters
-func (h *HilbilineState) backspace() {
+func (h HilbilineState) PrintPrompt() {
+	fmt.Print(h.prompt)
+}
+
+func (h HilbilineState) ClearScreen() {
+	fmt.Print("\x1b[H\x1b[2J")
+	h.PrintPrompt()
+}
+
+func (h *HilbilineState) editInsert(c rune) {
+	h.pos++
+	h.buf = append(h.buf, c)
+
+	if !mlmode {
+		fmt.Print(string(c))
+	} else {
+		fmt.Print("*")
+	}
+}
+
+func (h *HilbilineState) editBackspace() {
 	if h.pos > 0 {
-		h.buf = append(h.buf[:h.pos - 1], h.buf[h.pos:]...)
+		h.buf = append(h.buf[:h.pos-1], h.buf[h.pos:]...)
 		h.pos--
 		fmt.Printf("\u001b[1D \u001b[1D")
 	}
 }
 
+func (h *HilbilineState) refreshLine() (*term.State, error) {
+	// TODO: dont do this here; make a separate function
+	// refreshLine should do as the name suggests, only refresh
+	// the line
+	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
+	return oldState, err
+}
