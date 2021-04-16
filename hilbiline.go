@@ -84,7 +84,7 @@ func (h *HilbilineState) Read() (string, error) {
 	defer term.Restore(int(os.Stdin.Fd()), oldState)
 
 	h.buf = make([]rune, 80)
-	h.pos = KeyNull
+	h.pos = 0
 
 	for {
 		// TODO: custom read so we can handle esc properly
