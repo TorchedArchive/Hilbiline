@@ -165,6 +165,9 @@ func (h *HilbilineState) editBackspace() {
 }
 
 func (h *HilbilineState) refreshLine() (*term.State, error) {
+	// TODO: dont do this here; make a separate function
+	// refreshLine should do as the name suggests, only refresh
+	// the line
 	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
 	return oldState, err
 }
