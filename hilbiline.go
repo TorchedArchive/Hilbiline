@@ -105,8 +105,9 @@ func (h *HilbilineState) Read() (string, error) {
 			h.ClearScreen()
 		case KeyCtrlU:
 			// Delete whole line
-			h.buf[0] = KeyNull
+			h.buf = make([]rune, 80)
 			h.pos = 0
+
 			h.refreshLine()
 		// case KeyCtrlN: go forward in history
 		// case KeyCtrlP: go back in history
@@ -117,7 +118,6 @@ func (h *HilbilineState) Read() (string, error) {
 		case KeyBackspace:
 			h.editBackspace()
 		default:
-			h.pos++
 			h.editInsert(char)
 		}
 	}
@@ -145,10 +145,9 @@ func (h HilbilineState) ClearScreen() {
 	h.PrintPrompt()
 }
 
-func (h HilbilineState) editInsert(c rune) {
-	h.buf[h.pos] = c
+func (h *HilbilineState) editInsert(c rune) {
 	h.pos++
-	h.buf[h.pos] = KeyNull
+	h.buf[h.pos] = c
 
 	if !mlmode {
 		fmt.Print(string(c))
