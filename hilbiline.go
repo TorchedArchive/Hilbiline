@@ -67,8 +67,7 @@ func New(prompt string) HilbilineState {
 		stdio:  bufio.NewReader(os.Stdin),
 		stdout: bufio.NewReader(os.Stdout),
 
-		// Preallocate to avoid reallocation later
-		buf:    make([]rune, 80),
+		buf:    []rune{},
 		prompt: prompt,
 
 		// By default, does not have a file to write to.
@@ -83,7 +82,7 @@ func (h *HilbilineState) Read() (string, error) {
 	oldState, _ := h.refreshLine()
 	defer term.Restore(int(os.Stdin.Fd()), oldState)
 
-	h.buf = make([]rune, 80)
+	h.buf = []rune{}
 	h.pos = 0
 
 	for {
@@ -105,7 +104,7 @@ func (h *HilbilineState) Read() (string, error) {
 			h.ClearScreen()
 		case KeyCtrlU:
 			// Delete whole line
-			h.buf = make([]rune, 80)
+			h.buf = []rune{}
 			h.pos = 0
 
 			h.refreshLine()
@@ -147,7 +146,7 @@ func (h HilbilineState) ClearScreen() {
 
 func (h *HilbilineState) editInsert(c rune) {
 	h.pos++
-	h.buf[h.pos] = c
+	h.buf = append(h.buf, c)
 
 	if !mlmode {
 		fmt.Print(string(c))
