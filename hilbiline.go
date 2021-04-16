@@ -143,6 +143,10 @@ func (h HilbilineState) PrintPrompt() {
 	fmt.Print(h.prompt)
 }
 
+func (h *HilbilineState) SetPrompt(prompt string) {
+	h.prompt = prompt
+}
+
 func (h HilbilineState) ClearScreen() {
 	fmt.Print("\x1b[H\x1b[2J")
 	h.PrintPrompt()
