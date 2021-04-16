@@ -23,6 +23,7 @@ const (
 	KeyCtrlF     = 6
 	KeyCtrlH     = 8
 	KeyTab       = 9
+	KeyCtrlJ     = 10
 	KeyCtrlK     = 11
 	KeyCtrlL     = 12
 	KeyEnter     = 13
@@ -100,6 +101,9 @@ func (h *HilbilineState) Read() (string, error) {
 			return "", io.EOF
 		case KeyCtrlC:
 			return "", nil
+		// Vertical feed
+		case KeyCtrlJ:
+			return "", nil
 		case KeyCtrlL:
 			h.ClearScreen()
 		case KeyCtrlU:
@@ -126,7 +130,7 @@ func (h *HilbilineState) Read() (string, error) {
 func (h HilbilineState) LoadHistory(path string) error {
 	// Open file with R/W perms or create it,
 	// perms are RWE for user only
-	file, err := os.OpenFile(path, os.O_RDWR | os.O_CREATE, 0700)
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0700)
 	if err != nil {
 		return err
 	}
@@ -157,7 +161,7 @@ func (h *HilbilineState) editInsert(c rune) {
 
 func (h *HilbilineState) editBackspace() {
 	if h.pos > 0 {
-		h.buf = append(h.buf[:h.pos - 1], h.buf[h.pos:]...)
+		h.buf = append(h.buf[:h.pos-1], h.buf[h.pos:]...)
 		h.pos--
 		fmt.Printf("\u001b[1D \u001b[1D")
 	}
