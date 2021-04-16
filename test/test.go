@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"hilbiline"
 	"io"
 	"os"
+
+	"github.com/Hilbis/Hilbiline"
 )
 
 func main() {
