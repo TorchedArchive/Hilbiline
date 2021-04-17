@@ -131,7 +131,7 @@ func (h *HilbilineState) Read() (string, error) {
 
 }
 
-func (h HilbilineState) LoadHistory(path string) error {
+func (h *HilbilineState) LoadHistory(path string) error {
 	// Open file with R/W perms or create it,
 	// perms are RW for user only
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0600)
@@ -143,7 +143,7 @@ func (h HilbilineState) LoadHistory(path string) error {
 	return nil
 }
 
-func (h HilbilineState) PrintPrompt() {
+func (h *HilbilineState) PrintPrompt() {
 	fmt.Print(h.prompt)
 }
 
@@ -151,7 +151,7 @@ func (h *HilbilineState) SetPrompt(prompt string) {
 	h.prompt = prompt
 }
 
-func (h HilbilineState) ClearScreen() {
+func (h *HilbilineState) ClearScreen() {
 	fmt.Print("\x1b[H\x1b[2J")
 	h.PrintPrompt()
 }
