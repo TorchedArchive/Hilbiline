@@ -96,6 +96,7 @@ func (h *HilbilineState) Read() (string, error) {
 		switch char {
 		case KeyCtrlD:
 			// End session on CtrlD
+			h.destroy()
 			return "", io.EOF
 		case KeyCtrlC:
 			return "", nil
@@ -121,6 +122,7 @@ func (h *HilbilineState) Read() (string, error) {
 		// case KeyEsc: handle esc codes (cursor up etc)
 		case KeyEnter:
 			fmt.Print("\n\r")
+			h.histState.histBuf.addEntry(string(h.buf))
 			return string(h.buf), nil
 		case KeyBackspace:
 			h.editBackspace()
@@ -181,4 +183,8 @@ func (h *HilbilineState) refreshLine() (*term.State, error) {
 	// the line
 	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
 	return oldState, err
+}
+
+func (h *HilbilineState) destroy() {
+	h.histState.histBuf.writeToFile(h.histState.file)
 }

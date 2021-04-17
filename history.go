@@ -29,7 +29,7 @@ type histBuf struct {
 
 func newHistBuf() histBuf {
 	return histBuf{
-		entries: make([]string, 10),
+		entries: []string{},
 		length:  0,
 	}
 }
@@ -37,9 +37,14 @@ func newHistBuf() histBuf {
 // TODO
 func (h *histBuf) readFromFile(f *os.File) {}
 
+// TODO: Currently overwrites history
 func (h *histBuf) writeToFile(f *os.File) {
 	for _, v := range h.entries {
 		f.WriteString(v)
 		f.WriteString("\n")
 	}
+}
+
+func (h *histBuf) addEntry(s string) {
+	h.entries = append(h.entries, s)
 }
