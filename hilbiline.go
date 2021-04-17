@@ -94,8 +94,6 @@ func (h *HilbilineState) Read() (string, error) {
 		}
 
 		switch char {
-		// Apparently CtrlT, CtrlB, CtrlF all do stuff
-		// but like no one cares about it
 		case KeyCtrlD:
 			// End session on CtrlD
 			return "", io.EOF
@@ -103,7 +101,7 @@ func (h *HilbilineState) Read() (string, error) {
 			return "", nil
 		// Vertical feed
 		case KeyCtrlJ:
-			return "", nil
+			return string(h.buf), nil
 		case KeyCtrlL:
 			h.ClearScreen()
 		case KeyCtrlU:
@@ -112,8 +110,14 @@ func (h *HilbilineState) Read() (string, error) {
 			h.pos = 0
 
 			h.refreshLine()
+		// case KeyCtrlK: remove reset of word
+		// case KeyCtrlF: move forward one character
+		// case KeyCtrlB: move back one character
+		// case KeyCtrlT: swap buf[-1] and buf[-2]
+		// case KeyCtrlH: delete last rune
 		// case KeyCtrlN: go forward in history
 		// case KeyCtrlP: go back in history
+		// case KeyCtrlW: delete to previous word
 		// case KeyEsc: handle esc codes (cursor up etc)
 		case KeyEnter:
 			fmt.Print("\n\r")
@@ -129,8 +133,8 @@ func (h *HilbilineState) Read() (string, error) {
 
 func (h HilbilineState) LoadHistory(path string) error {
 	// Open file with R/W perms or create it,
-	// perms are RWE for user only
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0700)
+	// perms are RW for user only
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
 		return err
 	}
