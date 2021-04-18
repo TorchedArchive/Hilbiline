@@ -124,7 +124,6 @@ func (h *HilbilineState) Read() (string, error) {
 		case KeyEnter:
 			fmt.Print("\n\r")
 			h.histState.histBuf.addEntry(string(h.buf))
-			fmt.Print(h.buf)
 			return string(h.buf), nil
 		case KeyBackspace:
 			h.editBackspace()
