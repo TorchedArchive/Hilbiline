@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"unicode/utf8"
 
 	_ "github.com/mattn/go-runewidth" // we'll need later
 	"golang.org/x/term"
@@ -123,6 +124,7 @@ func (h *HilbilineState) Read() (string, error) {
 		case KeyEnter:
 			fmt.Print("\n\r")
 			h.histState.histBuf.addEntry(string(h.buf))
+			fmt.Print(h.buf)
 			return string(h.buf), nil
 		case KeyBackspace:
 			h.editBackspace()
@@ -171,9 +173,15 @@ func (h *HilbilineState) editInsert(c rune) {
 
 func (h *HilbilineState) editBackspace() {
 	if h.pos > 0 {
+		_, length := utf8.DecodeLastRuneInString(string(h.buf))
 		h.buf = append(h.buf[:h.pos-1], h.buf[h.pos:]...)
 		h.pos--
-		fmt.Printf("\u001b[1D \u001b[1D")
+		for i := 1; i < length; i++ {
+			// Backspace code
+			fmt.Printf("\b")
+		}
+		// Clear to end
+		fmt.Printf("\033[K")
 	}
 }
 
