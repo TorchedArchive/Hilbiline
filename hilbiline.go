@@ -175,12 +175,21 @@ func (h *HilbilineState) editBackspace() {
 		_, length := utf8.DecodeLastRuneInString(string(h.buf))
 		h.buf = append(h.buf[:h.pos-1], h.buf[h.pos:]...)
 		h.pos--
-		for i := 1; i < length; i++ {
-			// Backspace code
-			fmt.Printf("\b")
+
+		// This is atrocious
+		// For testing, ん has length 3, English chars have 1
+		// Without this if check ん will loop 4 times instead of 3
+		if length == 1 {
+			fmt.Print("\b")
+		} else {
+			for i := 1; i < length; i++ {
+				// Backspace code
+				fmt.Print("\b")
+			}
 		}
+
 		// Clear to end
-		fmt.Printf("\033[K")
+		fmt.Print("\033[K")
 	}
 }
 
