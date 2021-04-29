@@ -127,6 +127,9 @@ func (h *HilbilineState) Read() (string, error) {
 			return string(h.buf), nil
 		case KeyBackspace:
 			h.editBackspace()
+		case KeyTab:
+			// TODO: tab completion
+			// Just making it a no-op so it wont print the tab
 		default:
 			h.editInsert(char)
 		}
