@@ -100,6 +100,7 @@ func (h *HilbilineState) Read() (string, error) {
 			h.destroy()
 			return "", io.EOF
 		case KeyCtrlC:
+			fmt.Printf("\r\n")
 			return "", nil
 		// Vertical feed
 		case KeyCtrlJ:
