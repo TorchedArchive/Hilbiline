@@ -26,6 +26,7 @@ func main() {
 		if e != nil {
 			panic(e)
 		}
+		if str == "" { continue }
 
 		fmt.Println(str)
 	}
