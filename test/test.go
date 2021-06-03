@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/Mewyuna/Hilbiline"
+	"github.com/Rosettea/Hilbiline"
 )
 
 func main() {
