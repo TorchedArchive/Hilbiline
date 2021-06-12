@@ -36,6 +36,7 @@ import (
 	"github.com/deadsy/go-fdset"
 	"github.com/mattn/go-isatty"
 	"github.com/mattn/go-runewidth"
+	"github.com/pborman/ansi"
 )
 
 //-----------------------------------------------------------------------------
@@ -363,7 +364,8 @@ func newLineState(ifd, ofd int, prompt string, ts *Linenoise) *linestate {
 	ls.ifd = ifd
 	ls.ofd = ofd
 	ls.prompt = prompt
-	ls.promptWidth = runewidth.StringWidth(prompt)
+	strippedPrompt, _ := ansi.Strip([]byte(prompt))
+	ls.promptWidth = runewidth.StringWidth(string(strippedPrompt))
 	ls.ts = ts
 	ls.cols = getColumns(ifd, ofd)
 	return &ls
