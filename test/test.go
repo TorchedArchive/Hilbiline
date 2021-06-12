@@ -16,7 +16,7 @@ func main() {
 	hl.LoadHistory(defaultconfpath)
 
 	for {
-		str, e := hl.Read("& ")
+		str, e := hl.Read("\033[32m&\033[0m ")
 
 		if e == io.EOF {
 			fmt.Println("hit ctrl d")
