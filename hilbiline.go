@@ -38,7 +38,6 @@ const (
 )
 
 var (
-	maskedmode = false
 	mlmode     = false
 )
 
@@ -57,10 +56,6 @@ type HilbilineState struct {
 	oldpos int // Previous cursor position
 	width int // Number of terminal rows
 	height int // Num of terminal columns
-
-	// Don't know if needed
-	// Num of rows in mlmode
-	maxrows int
 
 	histState histState
 }
@@ -180,11 +175,7 @@ func (h *HilbilineState) editInsert(c rune) {
 		fmt.Print("\r\n")
 	}
 
-	if !mlmode {
-		fmt.Print(string(c))
-	} else {
-		fmt.Print("*")
-	}
+	fmt.Print(string(c))
 }
 
 func (h *HilbilineState) editBackspace() {
