@@ -55,7 +55,8 @@ type HilbilineState struct {
 
 	pos    int // Current cursor position
 	oldpos int // Previous cursor position
-	cols   int // Num of terminal columns
+	width int // Number of terminal rows
+	height int // Num of terminal columns
 
 	// Don't know if needed
 	// Num of rows in mlmode
@@ -65,12 +66,17 @@ type HilbilineState struct {
 }
 
 func New(prompt string) HilbilineState {
+	termwidth, termheight, _ := term.GetSize(int(os.Stdout.Fd()))
+
 	return HilbilineState{
 		stdio:  bufio.NewReader(os.Stdin),
 		stdout: bufio.NewReader(os.Stdout),
 
 		buf:    []rune{},
 		prompt: prompt,
+
+		width: termwidth,
+		height: termheight,
 
 		// By default, does not have a file to write to.
 		// AddHistFile must be used for persistent history
@@ -167,6 +173,13 @@ func (h *HilbilineState) editInsert(c rune) {
 	h.pos++
 	h.buf = append(h.buf, c)
 
+	// goes to next line if we're at the end of the term
+	// but why do we do this manually? handle backspace on next line better,
+	// it gets messed up if we let text go right to the end
+	if (h.width - len(h.prompt)) - h.pos == 0 {
+		fmt.Print("\r\n")
+	}
+
 	if !mlmode {
 		fmt.Print(string(c))
 	} else {
@@ -193,7 +206,10 @@ func (h *HilbilineState) editBackspace() {
 		}
 
 		// Clear to end
-		fmt.Print("\033[K")
+		fmt.Printf("\033[K")
+		if (h.width - len(h.prompt)) - h.pos == 1 {
+			fmt.Printf("\033[1A\033[%dC", h.width + len(h.prompt)) // cursor up
+		}
 	}
 }
 
