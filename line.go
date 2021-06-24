@@ -843,7 +843,7 @@ func (l *Linenoise) edit(ifd, ofd int, prompt, init string) (string, error) {
 			ls.editMoveLeft()
 		} else if r == KeycodeCtrlC {
 			// return QUIT
-			return "", ErrQuit
+			return "", nil
 		} else if r == KeycodeCtrlD {
 			if len(ls.buf) > 0 {
 				// delete: remove the character to the right of the cursor.
