@@ -638,6 +638,9 @@ func (ls *linestate) completeLine() rune {
 			// show the completion
 			ls.buf = []rune(lc[idx])
 			ls.pos = len(ls.buf)
+			puts(ls.ofd, "\r\n")
+			puts(ls.ofd, strings.Join(lc, " "))
+			puts(ls.ofd, "\r\n")
 			ls.refreshLine()
 			// restore the line buffer
 			ls.buf = savedBuf
@@ -646,6 +649,7 @@ func (ls *linestate) completeLine() rune {
 			// show the original buffer
 			ls.refreshLine()
 		}
+
 		// navigate through the completions
 		r = u.getRune(ls.ifd, nil)
 		if r == KeycodeNull {
