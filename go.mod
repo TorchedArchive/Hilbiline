@@ -3,8 +3,8 @@ module github.com/Rosettea/Hilbiline
 go 1.16
 
 require (
+	github.com/creack/goselect v0.1.2
 	github.com/creack/termios v0.0.0-20160714173321-88d0029e36a1
-	github.com/deadsy/go-fdset v0.0.0-20191109013125-1377c8665b89
 	github.com/kr/pty v1.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.13
 	github.com/mattn/go-runewidth v0.0.12

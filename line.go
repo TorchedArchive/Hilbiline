@@ -33,7 +33,7 @@ import (
 	"unsafe"
 
 	"github.com/creack/termios/raw"
-	"github.com/deadsy/go-fdset"
+	"github.com/creack/goselect"
 	"github.com/mattn/go-isatty"
 	"github.com/mattn/go-runewidth"
 	"github.com/pborman/ansi"
@@ -192,9 +192,10 @@ func (u *utf8) getRune(fd int, timeout *syscall.Timeval) rune {
 	// use select() for the timeout
 	if timeout != nil {
 		for true {
-			rd := syscall.FdSet{}
-			fdset.Set(fd, &rd)
-			n, err := syscall.Select(fd+1, &rd, nil, nil, timeout)
+			rd := goselect.FDSet{}
+			rd.Set(uintptr(fd))
+			fdset := syscall.FdSet(rd)
+			n, err := syscall.Select(fd+1, &fdset, nil, nil, timeout)
 			if err != nil {
 				continue
 			}
@@ -228,9 +229,10 @@ func (u *utf8) getRune(fd int, timeout *syscall.Timeval) rune {
 
 // If fd is not readable within the timeout period return true.
 func wouldBlock(fd int, timeout *syscall.Timeval) bool {
-	rd := syscall.FdSet{}
-	fdset.Set(fd, &rd)
-	n, err := syscall.Select(fd+1, &rd, nil, nil, timeout)
+	rd := goselect.FDSet{}
+	rd.Set(uintptr(fd))
+	fdset := syscall.FdSet(rd)
+	n, err := syscall.Select(fd+1, &fdset, nil, nil, timeout)
 	if err != nil {
 		log.Printf("select error %s\n", err)
 		return false
