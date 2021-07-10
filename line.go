@@ -619,7 +619,10 @@ func (ls *linestate) deletePrevWord() {
 // Show completions for the current line.
 func (ls *linestate) completeLine() rune {
 	// get a list of line completions
-	lc := ls.ts.completionCallback(ls.String())
+	wsidx := strings.LastIndex(ls.String(), " ")
+	words := strings.Split(ls.String(), " ")
+	lc := ls.ts.completionCallback(ls.String(), words[len(words) - 1], ls.pos - wsidx - 1)
+
 	if len(lc) == 0 {
 		// no line completions
 		beep()
@@ -630,17 +633,21 @@ func (ls *linestate) completeLine() rune {
 	idx := 0
 	u := utf8{}
 	var r rune
+
+	if len(lc) >= 2 {
+		puts(ls.ofd, "\r\n")
+		puts(ls.ofd, words[len(words) - 1] + strings.Join(lc, " " + words[len(words) - 1]))
+		puts(ls.ofd, "\r\n")
+	}
+
 	for !stop {
 		if idx < len(lc) {
 			// save the line buffer
 			savedBuf := ls.buf
 			savedPos := ls.pos
 			// show the completion
-			ls.buf = []rune(lc[idx])
+			ls.buf = append(ls.buf, []rune(lc[idx])...)
 			ls.pos = len(ls.buf)
-			puts(ls.ofd, "\r\n")
-			puts(ls.ofd, strings.Join(lc, " "))
-			puts(ls.ofd, "\r\n")
 			ls.refreshLine()
 			// restore the line buffer
 			ls.buf = savedBuf
@@ -675,7 +682,7 @@ func (ls *linestate) completeLine() rune {
 				// probably an escape sequence
 				// update the buffer and return
 				if idx < len(lc) {
-					ls.buf = []rune(lc[idx])
+					ls.buf = append(ls.buf, []rune(lc[idx])...)
 					ls.pos = len(ls.buf)
 				}
 			}
@@ -683,7 +690,7 @@ func (ls *linestate) completeLine() rune {
 		} else {
 			// update the buffer and return
 			if idx < len(lc) {
-				ls.buf = []rune(lc[idx])
+				ls.buf = append(ls.buf, []rune(lc[idx])...)
 				ls.pos = len(ls.buf)
 			}
 			stop = true
@@ -707,7 +714,7 @@ type Linenoise struct {
 	rawmode            bool                  // are we in raw mode?
 	mlmode             bool                  // are we in multiline mode?
 	savedmode          *raw.Termios          // saved terminal mode
-	completionCallback func(string) []string // callback function for tab completion
+	completionCallback func(string, string, int) []string // callback function for tab completion
 	hintsCallback      func(string) *Hint    // callback function for hints
 	hotkey             rune                  // character for hotkey
 	scanner            *bufio.Scanner        // buffered IO scanner for file reading
@@ -715,7 +722,7 @@ type Linenoise struct {
 
 // NewLineNoise returns a new line editor.
 func New() *Linenoise {
-	l := Linenoise{}
+	l := Linenoise{mlmode: true}
 	l.historyMaxlen = 32
 	return &l
 }
@@ -1054,7 +1061,7 @@ type Hint struct {
 }
 
 // SetCompletionCallback sets the completion callback function.
-func (l *Linenoise) SetCompletionCallback(fn func(string) []string) {
+func (l *Linenoise) SetCompletionCallback(fn func(string, string, int) []string) {
 	l.completionCallback = fn
 }
 

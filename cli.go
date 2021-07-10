@@ -310,7 +310,7 @@ func (c *CLI) functionHelp(item MenuItem) {
 }
 
 // Return a slice of line completion strings for the command line.
-func (c *CLI) completionCallback(cmdLine string) []string {
+func (c *CLI) completionCallback(cmdLine, _ string, _ int) []string {
 	line := ""
 	// split the command line into a list of command indices
 	cmdIndices := splitIndex(cmdLine)
