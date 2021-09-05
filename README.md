@@ -2,7 +2,7 @@
 > A readline-inspired line editor made for Hilbish
 
 Hilbiline is the custom made line editor for the
-[Hilbi Shell](https://github.com/Hilbis/Hilbish).
+[Hilbish Shell](https://github.com/Hilbis/Hilbish).
 It is a fork of [go-cli](https://github.com/deadsy/go-cli)
 
 # License
